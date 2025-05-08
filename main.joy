@@ -1,0 +1,4 @@
+"joy/inilib.joy" include.
+"joy/numlib.joy" include.
+
+imgfile == argv rest first "r" fopen.
