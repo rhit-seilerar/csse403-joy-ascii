@@ -10,3 +10,4 @@
 DEFINE
     imgfile == argv rest first "r" fopen.
 
+quit.
