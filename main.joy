@@ -1,4 +1,12 @@
 "joy/inilib.joy" include.
 "joy/numlib.joy" include.
 
-imgfile == argv rest first "r" fopen.
+"util.joy" include.
+"parse_bmp.joy" include.
+"parse_jpg.joy" include.
+"parse_png.joy" include.
+"ascii_output.joy" include.
+
+DEFINE
+    imgfile == argv rest first "r" fopen.
+
