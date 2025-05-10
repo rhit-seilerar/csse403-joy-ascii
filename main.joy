@@ -1,13 +1,65 @@
+(* No Echo *)
+0 setecho .
+
+(* Error on undefined *)
+1 setundeferror .
+
+(* Print the full stack after execution *)
+2 setautoput .
+
+(* Load libraries *)
 "joy/inilib.joy" include.
 "joy/numlib.joy" include.
+"joy/agglib.joy" include.
 
+(* Load custom files *)
 "util.joy" include.
 "parse_bmp.joy" include.
 "parse_jpg.joy" include.
 "parse_png.joy" include.
 "ascii_output.joy" include.
 
+(* Setup definitions *)
 DEFINE
-    imgfile == argv rest first "r" fopen.
+    imgfile == argv rest first "r" fopen ;
 
-quit.
+    (* get_args: -> [Output Input] *)
+    get_args == argc 3 =
+        [argv unstack pop]
+        ["Usage: 'joy main.joy IMAGE OUTPUT'\n" putchars quit]
+        branch ;
+
+    (* open_file: Path Mode -> File *)
+    open_file == dupd fopen dup null
+        ["Could not open file " rolldown concat "\n" concat putchars quit]
+        [popd]
+        branch ;
+
+    parsers == [
+        ["Unhandled extension " swap concat "\n" concat putchars quit ]
+        ["bmp" pop parse_bmp]
+        ["jpg" pop parse_jpg]
+        ["png" pop parse_png]
+    ] ;
+    
+    (* get_file_ext: Path -> Ext *)
+    get_file_ext == strrev '. strsplit popd strrev ;
+
+    (* parse_image: Path -> [[Pixel ..] ..] *)
+    parse_image ==
+        "Loading image...\n" putchars
+        dup "r" open_file swap get_file_ext parsers swap strcase swap fclose ;
+
+    make_ascii ==
+        "Constructing output...\n" putchars
+        pop "Test Output" ;
+    
+    (* write_ascii: Path Text -> *)
+    write_ascii == ["w" open_file] dip fputchars fclose ;
+
+    main == get_args parse_image make_ascii write_ascii ;
+.
+
+(* Run the program *)
+main .
+"Done!\n" putchars .

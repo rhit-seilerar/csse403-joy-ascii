@@ -1,10 +1,40 @@
-
 LIBRA
-    swonsd == [swons] dip ;
-    unswonsd == [unswons] dip ;
     dupdd == [dupd] dip ;
     dup2 == dupd dup swapd ;
     pop2 == pop pop ;
+    popd2 == [pop pop] dip ;
+    dip2 == swap [dip] dip ;
+    pstack == stack put ;
+
+    (* indexof: Agg Elem -> Index *)
+    indexof ==
+        -1 rotate -1 rollup
+        [dup null not]
+        [
+            [1 +] dip2 uncons [dupd =] dip swap
+            [[swapd] dip pop ""] [] branch
+        ]
+        while pop pop pop ;
+
+    strrev == "" [swons] swapd step ;
+
+    strcase == swap uncons swapd [dupd first =] filter dup null
+        [pop swons i]
+        [popd popd first i]
+        branch ;
+
+    (* strsplit: Agg Elem -> Agg1 Agg2 *)
+    (* Each time Elem is encountered, swap the accumuator. *)
+    strsplit ==
+        "" rotate dup
+        [null not]
+        [
+            pop uncons [dup2 =] dip swap
+            [popd ""]
+            [[swap swonsd] dip dup]
+            branch
+        ]
+        while pop popd swap strrev ;
 
     (* pack_rgba [R G B A] -> I *)
     (* Pops [R G B A] (ints from 0-255) off the stack, outputs a packed int *)

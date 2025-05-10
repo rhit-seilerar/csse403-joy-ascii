@@ -1,0 +1,21 @@
+0 setecho .
+1 setundeferror .
+2 setautoput .
+
+"joy/inilib.joy" include.
+"joy/numlib.joy" include.
+"joy/agglib.joy" include.
+
+DEFINE
+    (* assert O I [P] -> *)
+    (* Runs P with input I and checks against output O *)
+    assert == dupdd infra dup swapd equal
+        ["Passed\n" putchars pop2]
+        ["Expected " putchars swap put "; Got " putchars put '\n putch]
+        branch ;
+
+    test == "Testing " putchars dup2 put "with input " putchars put ": " putchars
+        assert ;
+.
+
+"test/test_util.joy" include .

@@ -1,0 +1,4 @@
+DEFINE
+    (* parse_jpg P -> [[I ..] ..] *)
+    parse_jpg == []
+.
