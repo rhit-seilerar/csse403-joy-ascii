@@ -9,7 +9,7 @@ DEFINE
             [ read_int ] (* Data Offset *)
         ]
         [ dupdd dip cons ]
-        step arrrev popd pstack ;
+        step arrrev popd ;
 
     read_bmp_info_header ==
         []
@@ -22,10 +22,22 @@ DEFINE
             [ read_int ] (* Compression *)
             [ read_int ] (* Image Size *)
             [ read_int ] (* X Pixels per Meter *)
+            [ read_int ] (* Y Pixels per Meter *)
+            [ read_int ] (* Colors Used *)
+            [ read_int ] (* Important Colors *)
         ]
         [ dupdd dip cons ]
-        step arrev popd pstack ;
+        step arrrev popd ;
+
+    read_bmp ==
+        []
+        [
+            [ read_bmp_header ]
+            [ read_bmp_info_header ]
+        ]
+        [ dupdd dip cons ]
+        step arrrev popd pstack ;
 
     (* parse_bmp P -> [[I ..] ..] *)
-    parse_bmp == read_bmp_header ;
+    parse_bmp == read_bmp;
 .
