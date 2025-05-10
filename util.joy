@@ -16,6 +16,7 @@ LIBRA
         ]
         while pop pop pop ;
 
+    arrrev == [] [swons] swapd step ;
     strrev == "" [swons] swapd step ;
 
     strcase == swap uncons swapd [dupd first =] filter dup null
@@ -38,11 +39,19 @@ LIBRA
 
     (* pack_rgba [R G B A] -> I *)
     (* Pops [R G B A] (ints from 0-255) off the stack, outputs a packed int *)
-    pack_rgba_one == unswonsd 256 * + ;
-    pack_rgba == 0 4 [pack_rgba_one] times popd ;
+    pack_one == unswonsd 256 * + ;
+    pack_rgba == 0 4 [pack_one] times popd ;
 
     (* unpack_rgba I -> [R G B A] *)
     (* Pops a packed int from the stack, outputs [R G B A] *)
-    unpack_rgba_one == 256 div swap swonsd ;
-    unpack_rgba == [] swap 4 [unpack_rgba_one] times pop ;
+    unpack_one == 256 div swap swonsd ;
+    unpack_rgba == [] swap 4 [unpack_one] times pop ;
+    
+    (* Pack four bytes into a little-endian int *)
+    pack_le2 == arrrev 0 2 [pack_one] times popd ;
+    pack_le4 == arrrev 0 4 [pack_one] times popd ;
+
+    read_chars == dupd fread "" swap [chr swons] step strrev ;
+    read_short == 2 fread pack_le2 ;
+    read_int == 4 fread pack_le4 ;
 .

@@ -1,4 +1,31 @@
+(* https://www.ece.ualberta.ca/~elliott/ee552/studentAppNotes/2003_w/misc/bmp_file_format/bmp_file_format.htm *)
 DEFINE
+    read_bmp_header ==
+        []
+        [
+            [ 2 read_chars ] (* Signature *)
+            [ read_int ] (* File Size *)
+            [ read_int ] (* <unused> *)
+            [ read_int ] (* Data Offset *)
+        ]
+        [ dupdd dip cons ]
+        step arrrev popd pstack ;
+
+    read_bmp_info_header ==
+        []
+        [
+            [ read_int ] (* Info Header Size *)
+            [ read_int ] (* Width *)
+            [ read_int ] (* Height *)
+            [ read_short ] (* Planes *)
+            [ read_short ] (* Bits per Pixel *)
+            [ read_int ] (* Compression *)
+            [ read_int ] (* Image Size *)
+            [ read_int ] (* X Pixels per Meter *)
+        ]
+        [ dupdd dip cons ]
+        step arrev popd pstack ;
+
     (* parse_bmp P -> [[I ..] ..] *)
-    parse_bmp == []
+    parse_bmp == read_bmp_header ;
 .
