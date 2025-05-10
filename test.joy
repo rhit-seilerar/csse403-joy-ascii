@@ -1,0 +1,36 @@
+
+"util.joy" include .
+
+DEFINE
+    (* assert O I [P] -> *)
+    (* Runs P with input I and checks against output O *)
+    assert == dupdd infra dup swapd equal
+        ["Passed\n" putchars pop2]
+        ["Expected " putchars swap put "; Got " putchars put '\n putch]
+        branch ;
+
+    test == "Testing " putchars dup2 put "with input " putchars put ": " putchars
+        assert ;
+.
+
+0 setecho .
+1 setundeferror .
+2 setautoput .
+
+[1 [2 3] 4] [1 2 [3] 4] [swonsd] test .
+[1 2 [3] 4] [1 [2 3] 4] [unswonsd] test .
+[1 2 3 3 4] [1 2 3 4] [dupdd] test .
+[1 2 1 2 3] [1 2 3] [dup2] test .
+[3] [1 2 3] [pop2] test .
+
+[3 [5 7 11]] [0 [3 5 7 11]] [pack_rgba_one] test .
+[773 [7 11]] [3 [5 7 11]] [pack_rgba_one] test .
+[197895 [11]] [773 [7 11]] [pack_rgba_one] test .
+[50661131 []] [197895 [11]] [pack_rgba_one] test .
+[50661131] [[3 5 7 11]] [pack_rgba] test .
+
+[197895 [11]] [50661131 []] [unpack_rgba_one] test .
+[773 [7 11]] [197895 [11]] [unpack_rgba_one] test .
+[3 [5 7 11]] [773 [7 11]] [unpack_rgba_one] test .
+[0 [3 5 7 11]] [3 [5 7 11]] [unpack_rgba_one] test .
+[[3 5 7 11]] [50661131] [unpack_rgba] test .

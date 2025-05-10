@@ -1,0 +1,5 @@
+
+DEFINE
+    (* parse_bmp P -> [[I ..] ..] *)
+    (* Takes a pathname, outputs a 2d array of RGBA ints)
+    parse_bmp == .
