@@ -6,6 +6,8 @@
 "seqlib" libload .
 
 DEFINE
+    TODO == [TODO] unstack ;
+
     assert == [[dup] dip] dip infra dup swapd equal
         ["Passed\n" putchars pop2]
         ["Expected " putchars swap put "; Got " putchars put '\n putch]
