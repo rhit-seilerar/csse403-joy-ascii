@@ -1,0 +1,37 @@
+0 setecho .
+1 setundeferror .
+2 setautoput .
+
+"joy/inilib.joy" include .
+"seqlib" libload .
+
+DEFINE
+    assert == [[dup] dip] dip infra dup swapd equal
+        ["Passed\n" putchars pop2]
+        ["Expected " putchars swap put "; Got " putchars put '\n putch]
+        branch ;
+
+    test == "Testing " putchars dup2 put "with input " putchars put ": " putchars
+        assert ;
+.
+
+[[] []] [[]] [my_split] test .
+[[b] [a]] [[a b]] [my_split] test .
+[[b a] [d c]] [[d c b a]] [my_split] test .
+[[c b a] [f e d]] [[f e d c b a]] [my_split] test .
+
+[[]] [[] []] [my_merge] test .
+[[a]] [[a] []] [my_merge] test .
+[[a]] [[] [a]] [my_merge] test .
+[[a b c d]] [[a] [b c d]] [my_merge] test .
+[[a b c d]] [[a b c] [d]] [my_merge] test .
+[[a b c d]] [[d] [a b c]] [my_merge] test .
+[[a b c d]] [[b c d] [a]] [my_merge] test .
+[[a b c d]] [[a d] [b c]] [my_merge] test .
+
+[[]] [[]] [merge_sort] test .
+[[a]] [[a]] [merge_sort] test .
+[[a b c d e]] [[a b c d e]] [merge_sort] test .
+[[a b c d e]] [[d e b c a]] [merge_sort] test .
+[[a b c d e]] [[e a b c d]] [merge_sort] test .
+[[a b c d e]] [[e d c b a]] [merge_sort] test .

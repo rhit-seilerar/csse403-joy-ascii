@@ -1,0 +1,15 @@
+DEFINE
+    my_split == dup size 2 / dup [[uncons] times] dip [] rotate [[cons] times] dip ;
+
+    my_merge ==
+        []
+        [pop null2 not]
+        [ [pop unswons2 >] [unswonsd] [[unswonsd swap] dip] ifte cons ]
+        while
+        reverse
+        [pop null] [] [swapd] ifte popd merge ;
+
+    merge_sort == [small] [] [my_split] [my_merge] binrec ;
+.
+
+"homework_test.joy" include .
