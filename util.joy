@@ -7,9 +7,8 @@ LIBRA
     pstack == stack put ;
 
     (* indexof: Agg Elem -> Index *)
-    indexof ==
-        -1 rotate -1 rollup
-        [dup null not]
+    indexof == -1 rotate -1 rollup
+        [null not]
         [
             [1 +] dip2 uncons [dupd =] dip swap
             [[swapd] dip pop ""] [] branch
