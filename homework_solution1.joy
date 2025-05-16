@@ -1,5 +1,5 @@
 DEFINE
-    my_split == dup size 2 / dup [[uncons] times] dip [] rotate [[cons] times] dip ;
+    my_split == dup size 2 / dup [[uncons] times] dip [] rotate [[cons] times] dip;
 
     my_merge ==
         []

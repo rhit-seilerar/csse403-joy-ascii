@@ -1,16 +1,20 @@
 (* Joy Homework *)
 
-(* Pro tip: Use comments! They help you keep track of the stack *)
+(*
+ * Pro tip: Use comments! They help you keep track of the stack
+ * Run `./joy/joy homework_template.joy` to run the tests.
+ *)
 DEFINE
 
     (*
-     * Split a list (L) into two halves (L1, L2). The lengths of L1 and L2 should be at most 1 apart.
+     * Split a list (L) into two halves (L1..L2). The lengths of L1 and L2 should be at most 1 apart.
+     * NOTE: L1 must be the first half and L2 the second, but the order of their elements doesn't matter.
      * my_split: L -> L1 L2
      *)
     my_split == TODO ;
 
     (*
-     * Merge two sorted sublists (L1, L2) into one sorted list (L)
+     * Merge two sorted sublists (L1..L2) into one sorted list (L)
      * merge: L1 L2 -> L
      *)
     my_merge == TODO ;

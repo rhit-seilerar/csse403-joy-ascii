@@ -15,12 +15,17 @@ DEFINE
 
     test == "Testing " putchars dup2 put "with input " putchars put ": " putchars
         assert ;
+
+    unordered_my_split == my_split qsort [qsort] dip
 .
 
-[[] []] [[]] [my_split] test .
-[[b] [a]] [[a b]] [my_split] test .
-[[b a] [d c]] [[d c b a]] [my_split] test .
-[[c b a] [f e d]] [[f e d c b a]] [my_split] test .
+
+
+[[] []] [[]] [unordered_my_split] test .
+[[b] [a]] [[a b]] [unordered_my_split] test .
+[[a b] [c d]] [[d c b a]] [unordered_my_split] test .
+[[a c] [b d]] [[d b c a]] [unordered_my_split] test .
+[[a b c] [d e f]] [[f e d c b a]] [unordered_my_split] test .
 
 [[]] [[] []] [my_merge] test .
 [[a]] [[a] []] [my_merge] test .
@@ -30,6 +35,7 @@ DEFINE
 [[a b c d]] [[d] [a b c]] [my_merge] test .
 [[a b c d]] [[b c d] [a]] [my_merge] test .
 [[a b c d]] [[a d] [b c]] [my_merge] test .
+[[a b c d]] [[a c] [b d]] [my_merge] test .
 
 [[]] [[]] [merge_sort] test .
 [[a]] [[a]] [merge_sort] test .
