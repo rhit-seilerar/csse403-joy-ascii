@@ -8,16 +8,16 @@
 2 setautoput .
 
 (* Load libraries *)
-"joy/inilib.joy" include.
-"joy/numlib.joy" include.
-"joy/agglib.joy" include.
+"joy/inilib.joy" include .
+"joy/numlib.joy" include .
+"joy/agglib.joy" include .
 
 (* Load custom files *)
-"util.joy" include.
-"parse_bmp.joy" include.
-"parse_jpg.joy" include.
-"parse_png.joy" include.
-"ascii_output.joy" include.
+"util.joy" include .
+"parse_bmp.joy" include .
+"parse_jpg.joy" include .
+"parse_png.joy" include .
+"ascii_output.joy" include .
 
 (* Setup definitions *)
 DEFINE

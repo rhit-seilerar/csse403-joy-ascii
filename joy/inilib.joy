@@ -95,7 +95,7 @@ LIBRA
     verbose == false;
     libload ==
 	[ '_ swons intern body null ]
-	[ ".joy" concat include ]
+	[ ".joy" concat "joy/" swap concat include ]
 	[ [ verbose ]
 	  [ putchars "  is already loaded\n" putchars ]
 	  [ pop ]

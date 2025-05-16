@@ -1,0 +1,26 @@
+(* Joy Homework *)
+
+(* Pro tip: Use comments! They help you keep track of the stack *)
+DEFINE
+
+    (*
+     * Split a list (L) into two halves (L1, L2). The lengths of L1 and L2 should be at most 1 apart.
+     * my_split: L -> L1 L2
+     *)
+    my_split == TODO ;
+
+    (*
+     * Merge two sorted sublists (L1, L2) into one sorted list (L)
+     * merge: L1 L2 -> L
+     *)
+    my_merge == TODO ;
+
+    (*
+     * Given an unsorted list (Lu), sort it via mergesort and push the result (Ls)
+     * merge_sort: Lu -> Ls
+     *)
+    merge_sort == TODO ;
+
+(* Don't modify anything after this! *)
+.
+"homework_test.joy" include .
