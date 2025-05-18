@@ -19,18 +19,19 @@ DEFINE put_nice == put '\n putch.
 
 
 (* factorial : N -> M *)
-DEFINE 
-fibonacci_v1 == [1 <=] [[1] unary] [1 - dup 1 -] [+] binrec;
-fibonacci_v2 == [1 <=] [[1] unary] [pred dup pred] [+] binrec.
-
-[0 1 2 3 4 5 6 7 8] [fibonacci_v1] map put_nice.
-[0 1 2 3 4 5 6 7 8] [fibonacci_v2] map put_nice.
-
-
-(* fibonnacci : N -> F *)
 DEFINE my_factorial == [1] [*] primrec.
 
 5 my_factorial put_nice.
+
+
+(* fibonnacci : N -> F *)
+DEFINE 
+fibonacci_v1 == [1 <=] [[1] unary] [1 - dup 1 -] [+] binrec;
+fibonacci_v2 == [1 <=] [[1] unary] [pred dup pred] [+] binrec;
+fibonacci_v3 == [2 <] [] [pred dup pred] [+] binrec.
+
+[0 1 2 3 4 5 6 7 8] [fibonacci_v1] map put_nice.
+[0 1 2 3 4 5 6 7 8] [fibonacci_v2] map put_nice.
 
 
 (* reverse : L1 -> L2 *)
@@ -54,6 +55,8 @@ DEFINE indexof ==
     ]
     while pop pop pop ;
 
+[8 29 3 4 5] 4 indexof put_nice.
+
 
 (*
  * Value at index (reimplementation of Joy 'at' function)
@@ -61,6 +64,34 @@ DEFINE indexof ==
  *)
 val_at == [rest] times first.
 
-[8 29 3 4 5] 4 indexof put_nice.
-
 [8 29 3 4 5] 1 val_at put_nice.
+
+
+
+
+DEFINE
+    TODO == [TODO] unstack ;
+
+    assert == [[dup] dip] dip infra dup swapd equal
+        ["Passed\n" putchars pop2]
+        ["Expected " putchars swap put "; Got " putchars put '\n putch]
+        branch ;
+
+    test == "Testing " putchars dup2 put "with input " putchars put ": " putchars
+        assert ;
+.
+
+[1] [0] [my_factorial] test.
+[1] [1] [my_factorial] test.
+[6] [3] [my_factorial] test.
+
+[0] [0] [fibonacci_v3] test.
+[1] [1] [fibonacci_v3] test.
+[8] [6] [fibonacci_v3] test.
+
+[[]] [[]] [reverse_v3] test.
+[[1]] [[1]] [reverse_v3] test.
+[[3 2 1]] [[1 2 3]] [reverse_v3] test.
+
+[1] [2 [1 2 3]] [indexof] test.
+[3] [2 [1 2 3]] [val_at] test.

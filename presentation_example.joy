@@ -11,7 +11,7 @@ DEFINE put_nice == put '\n putch.
 
 
 (* factorial : N -> M *)
-DEFINE factorial == TODO.
+DEFINE factorial == [1] [*] primrec.
 
 
 (* fibonnacci : N -> F *)
@@ -36,4 +36,34 @@ DEFINE indexof ==
  * Value at index (reimplementation of Joy 'at' function)
  * val_at: AGG I -> N
  *)
-val_at == [rest] times first.
+DEFINE val_at == [rest] times first.
+
+
+
+
+DEFINE
+    TODO == [TODO] unstack ;
+
+    assert == [[dup] dip] dip infra dup swapd equal
+        ["Passed\n" putchars pop2]
+        ["Expected " putchars swap put "; Got " putchars put '\n putch]
+        branch ;
+
+    test == "Testing " putchars dup2 put "with input " putchars put ": " putchars
+        assert ;
+.
+
+[1] [0] [my_factorial] test.
+[1] [1] [my_factorial] test.
+[6] [3] [my_factorial] test.
+
+[0] [0] [fibonacci_v3] test.
+[1] [1] [fibonacci_v3] test.
+[8] [6] [fibonacci_v3] test.
+
+[[]] [[]] [reverse_v3] test.
+[[1]] [[1]] [reverse_v3] test.
+[[3 2 1]] [[1 2 3]] [reverse_v3] test.
+
+[1] [2 [1 2 3]] [indexof] test.
+[3] [2 [1 2 3]] [val_at] test.
