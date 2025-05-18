@@ -16,7 +16,7 @@ DEFINE
     test == "Testing " putchars dup2 put "with input " putchars put ": " putchars
         assert ;
 
-    unordered_my_split == my_split qsort [qsort] dip
+    unordered_my_split == my_split [list] [qsort [qsort] dip] [] ifte;
 .
 
 [[] []] [[]] [unordered_my_split] test .

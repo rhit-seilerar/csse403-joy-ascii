@@ -45,24 +45,20 @@ reverse_v3 == [] [swons] fold.
 [1 2 3 4 5] reverse_v3 put_nice.
 
 
-(* indexof : AGG N -> I *)
-DEFINE indexof ==
-    -1 rotate -1 rollup
-    [dup null not]
-    [
-        [1 +] dip2 uncons [dupd =] dip swap
-        [[swapd] dip pop ""] [] branch
-    ]
-    while pop pop pop ;
+(* Takes a string and a list of cases [string program..]. If the input matches a case, runs the program with the string as input. The first case is default and is run if no other cases match. *)
+(* strcase: S [[P0] [S1 P1] [S2 P2] ..] -> S P i*)
+DEFINE strcase == uncons swapd [first =] filter [null] [pop swons] [popd popd first] ifte i.
 
-[8 29 3 4 5] 4 indexof put_nice.
+"a" [[1] ["a" 2] ["b" 3]] strcase put put_nice.
+"b" [[1] ["a" 2] ["b" 3]] strcase put put_nice.
+"c" [[1] ["a" 2] ["b" 3]] strcase put put_nice.
 
 
 (*
  * Value at index (reimplementation of Joy 'at' function)
  * val_at: AGG I -> N
  *)
-val_at == [rest] times first.
+DEFINE val_at == [rest] times first.
 
 [8 29 3 4 5] 1 val_at put_nice.
 
@@ -93,5 +89,8 @@ DEFINE
 [[1]] [[1]] [reverse_v3] test.
 [[3 2 1]] [[1 2 3]] [reverse_v3] test.
 
-[1] [2 [1 2 3]] [indexof] test.
+["abc" "abc"] [[[dup]] "abc"] [strcase] test.
+["abc"] [[[dup] ["abc"]] "abc"] [strcase] test.
+[3 "def"] [[[dup] ["def" 3] ["abc"]] "def"] [strcase] test.
+
 [3] [2 [1 2 3]] [val_at] test.
