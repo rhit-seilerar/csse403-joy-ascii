@@ -19,8 +19,6 @@ DEFINE
     unordered_my_split == my_split qsort [qsort] dip
 .
 
-
-
 [[] []] [[]] [unordered_my_split] test .
 [[b] [a]] [[a b]] [unordered_my_split] test .
 [[a b] [c d]] [[d c b a]] [unordered_my_split] test .

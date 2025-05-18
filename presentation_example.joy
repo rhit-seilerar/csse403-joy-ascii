@@ -8,59 +8,32 @@
 DEFINE put_nice == put '\n putch.
 
 (* Syntax, Arithmetic *)
-1 2 - put_nice.
-4 5 + 2 div put put_nice.
-
-(* i executes the previous quoted code: *)
-[1 2 +] i put_nice.
-
-(* feel free to mess with more arithmetic here! *)
-
-DEFINE
-(* Reverse *)
-reverse_v1 == [] [swap null not] [[unswons] dip cons] while swap pop;
-reverse_v2 == [] [swap null not] [unswonsd cons] while swap pop;
-reverse_v3 == [] [swons] fold.
-
-[1 2 3 4 5] reverse_v1 put_nice.
-[1 2 3 4 5] reverse_v2 put_nice.
-[1 2 3 4 5] reverse_v3 put_nice.
 
 
-(* Fibonacci 
-  fibonnacci : N -> F *)
-DEFINE 
-fibonacci_v1 == [1 <=] [[1] unary] [1 - dup 1 -] [+] binrec;
-fibonacci_v2 == [1 <=] [[1] unary] [pred dup pred] [+] binrec.
-
-[0 1 2 3 4 5 6 7 8] [fibonacci_v1] map put_nice.
-[0 1 2 3 4 5 6 7 8] [fibonacci_v2] map put_nice.
+(* factorial : N -> M *)
+DEFINE factorial == TODO.
 
 
-(* Indexof 
-    indexof: AGG N -> I *)
-DEFINE
-indexof ==
+(* fibonnacci : N -> F *)
+DEFINE fibonacci == TODO.
+
+
+(* reverse : L1 -> L2 *)
+DEFINE reverse == TODO.
+
+
+(* indexof : AGG N -> I *)
+DEFINE indexof ==
     -1 rotate -1 rollup
     [dup null not]
     [
         [1 +] dip2 uncons [dupd =] dip swap
         [[swapd] dip pop ""] [] branch
     ]
-    while pop pop pop ;
+    while pop pop pop .
 
-(* Value at index
-    val_at: AGG I -> N
-    (reimplementation of Joy 'at' function) *)
-
+(*
+ * Value at index (reimplementation of Joy 'at' function)
+ * val_at: AGG I -> N
+ *)
 val_at == [rest] times first.
-
-[8 29 3 4 5] 4 indexof put_nice.
-
-[8 29 3 4 5] 1 val_at put_nice.
-
-(* Factorial 
-    my_factorial: N -> F *)
-DEFINE my_factorial == [1] [*] primrec.
-
-5 my_factorial put_nice.
