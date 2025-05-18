@@ -18,10 +18,9 @@ LIBRA
     arrrev == [] [swons] swapd step ;
     strrev == "" [swons] swapd step ;
 
-    strcase == swap uncons swapd [dupd first =] filter dup null
-        [pop swons i]
-        [popd popd first i]
-        branch ;
+    (* Takes a string and a list of cases [string program..]. If the input matches a case, runs the program with the string as input. The first case has no string and is default. *)
+    (* strcase: S [..[S P]..] -> S P i *)
+    strcase == uncons swapd [first =] filter [null] [pop swons] [popd popd first] ifte i;
 
     (* strsplit: Agg Elem -> Agg1 Agg2 *)
     (* Each time Elem is encountered, swap the accumuator. *)

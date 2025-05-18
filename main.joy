@@ -48,7 +48,7 @@ DEFINE
     (* parse_image: Path -> [[Pixel ..] ..] *)
     parse_image ==
         "Loading image...\n" putchars
-        dup "r" open_file swap get_file_ext parsers swap strcase swap fclose ;
+        dup "r" open_file swap get_file_ext parsers strcase swap fclose ;
 
     make_ascii ==
         "Constructing output...\n" putchars
