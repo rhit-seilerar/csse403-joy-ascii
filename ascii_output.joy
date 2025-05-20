@@ -1,0 +1,58 @@
+(* 1 setundeferror .
+
+"joy/inilib.joy" include .
+"joy/numlib.joy" include .
+"joy/agglib.joy" include . *)
+
+DEFINE 
+test_in == [[0 1 2 3]
+            [4 5 6 7]
+            [8 9 10 11]
+            [12 13 14 15]];
+
+reverse == [] [swons] fold;
+
+group_vertical == swap reverse [[]] [
+                    [swap first size rolldown <] 
+                    [swap uncons rollup cons swap cons] 
+                    [[] cons swap cons] 
+                    ifte] 
+                fold popd;
+
+firstn == dupd [] rolldown [unswonsd cons] times reverse popd;
+restn == dupd rolldown [unswons pop] times;
+
+group_horizontal == [] [swap first null not] 
+                        [rollup dup rollup [firstn] map rotate [restn] map [swonsd] dip rolldown] 
+                        while reverse;
+
+trim_1D == dupd dup size rolldown div popd [unswons pop] times;
+
+trim_2D == rolldown trim_1D swapd [trim_1D] map rotate;
+
+group_pixels == swapd group_vertical [group_horizontal] map;
+
+process_group == [];
+
+process_pixels == [[process_group] map] map;
+
+(* get_output :: H V Agg -> Agg
+ * Splits pixels of Agg into groups of size H x V (H horizontal, V vertical -- ex: 10x5) 
+ * and processes them into ASCII output, one character for each group *)
+get_output == trim_2D group_pixels process_pixels.
+
+(* END DEFINE *)
+
+(*
+test_in 2 2 trim_2D group_pixels put '\n putch.
+
+2 [[1 2 3 4] [5 6 7 8]] [firstn] map popd put '\n putch.
+2 [[1 2 3 4] [5 6 7 8]] [restn] map popd put '\n putch.
+
+2 test_in group_horizontal.
+
+"trim\n" put test_in 3 3 trim_2D pop pop put '\n putch.
+
+*)
+
+(* END FILE*)
