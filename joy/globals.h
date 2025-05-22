@@ -9,7 +9,7 @@
 #define SYMTABMAX	1000
 #define DISPLAYMAX	10	/* nesting in HIDE & MODULE	*/
 # ifndef GC_BDW
-#    define MEMORYMAX	20000
+#    define MEMORYMAX	20000000
 # else
 #    define MEMORYMAX	0
 # endif
