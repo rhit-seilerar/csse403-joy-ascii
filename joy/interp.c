@@ -1205,9 +1205,10 @@ PRIVATE void take_()
 	    POP(stk);
 	    /* do not swap the order of the next two statements ! ! ! */
 	    if (i < 0) i = 0;
-	    if (i > strlen(old))  return; /* the old string unchanged */
+	    if (i >= strlen(old))  return; /* the old string unchanged */
 	    p = result = (char *) malloc(strlen(old) - i + 1);
 	    while (i-- > 0)  *p++ = *old++;
+	    *p = '\0';
 	    UNARY(STRING_NEWNODE,result);
 	    return; }
 	case LIST_:
