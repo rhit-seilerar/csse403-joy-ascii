@@ -44,7 +44,7 @@ LIBRA
     
     pack_le == [arrrev 0] dip [pack_one] times popd ;
     pack_le2 == 2 pack_le ;
-    pack_le4 == 4 pack_le ;
+    pack_le4 == arrrev 0 pack_one pack_one pack_one [8388608 <] [pack_one] [pack_one] ifte popd ;
 
     (* read_chars : S I -> S "abc.." *)
     read_chars == dupd fread "" swap [chr swons] step strrev ;
