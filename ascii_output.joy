@@ -34,7 +34,7 @@ trim_2D == rolldown trim_1D swapd [trim_1D] map rotate;
 
 group_pixels == swapd dup [rollup] dip group_vertical [group_horizontal] map;
 
-sum_pixel == 256 div 0 [pop pop 255 >] [+ 256 swap [div] dip] while;
+sum_pixel == unpack_argb rest sum ;
 
 total_val_group == [[sum_pixel] map sum] map sum;
 

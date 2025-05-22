@@ -35,12 +35,12 @@ LIBRA
     (* pack_rgba [R G B A] -> I *)
     (* Pops [R G B A] (ints from 0-255) off the stack, outputs a packed int *)
     pack_one == unswonsd 256 * + ;
-    pack_rgba == 0 4 [pack_one] times popd ;
+    pack_argb == 0 4 [pack_one] times popd ;
 
-    (* unpack_rgba I -> [R G B A] *)
-    (* Pops a packed int from the stack, outputs [R G B A] *)
-    unpack_one == 256 div swap swonsd ;
-    unpack_rgba == [] swap 4 [unpack_one] times pop ;
+    (* unpack_rgba I -> [A R G B] *)
+    (* Pops a packed int from the stack, outputs [A R G B] *)
+    unpack_one == dup 256 rem [0 <] [256 +] [] ifte dup [- 256 /] dip swap swonsd ;
+    unpack_argb == [] swap 4 [unpack_one] times pop ;
     
     pack_le == [arrrev 0] dip [pack_one] times popd ;
     pack_le2 == 2 pack_le ;

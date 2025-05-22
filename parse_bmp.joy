@@ -51,7 +51,7 @@ DEFINE
     (* bmp_read_color_table : FileStream [BmpFileHeader BmpDibHeader] -> FileStream [BmpFileHeader BmpDibHeader BmpColorTable] *)
     bmp_read_color_table ==
         dup [bmp_get_dib_size 14 + 0 fseek pop] dip
-        dup bmp_get_color_table_entry_count swapd [] swap [ [read_int] dip cons ] times arrrev
+        dup bmp_get_color_table_entry_count swapd [] swap [ [read_int 16777216 -] dip cons ] times arrrev
         rolldown arrrev cons arrrev
         ;
 
@@ -68,10 +68,14 @@ DEFINE
         ;
 
     bmp_get_pixel_reader == dup bmp_get_bits_per_pixel [
+        [1 ["1bpp bitmaps are not supported\n" putchars 1 quit]]
+        [2 ["2bpp bitmaps are not supported\n" putchars 1 quit]]
+        [4 ["4bpp bitmaps are not supported\n" putchars 1 quit]]
         [8 [read_byte]]
-        [16 [read_short]]
-        [24 [dup 3 fread 3 pack_le]]
+        [16 ["16bpp bitmaps are not supported\n" putchars 1 quit]]
+        [24 [dup 3 fread arrrev 255 swons arrrev 3 pack_le]]
         [32 [read_int]]
+        [64 ["64bpp bitmaps are not supported\n" putchars 1 quit]]
     ] case ;
 
     bmp_get_image_size == dup dup [[bmp_get_bits_per_pixel] dip bmp_get_width] dip bmp_get_height * * 7 + 8 / ;

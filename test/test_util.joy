@@ -19,10 +19,11 @@
 [773 [7 11]] [3 [5 7 11]] [pack_one] test .
 [197895 [11]] [773 [7 11]] [pack_one] test .
 [50661131 []] [197895 [11]] [pack_one] test .
-[50661131] [[3 5 7 11]] [pack_rgba] test .
+[50661131] [[3 5 7 11]] [pack_argb] test .
 
 [197895 [11]] [50661131 []] [unpack_one] test .
 [773 [7 11]] [197895 [11]] [unpack_one] test .
 [3 [5 7 11]] [773 [7 11]] [unpack_one] test .
 [0 [3 5 7 11]] [3 [5 7 11]] [unpack_one] test .
-[[3 5 7 11]] [50661131] [unpack_rgba] test .
+[[3 5 7 11]] [50661131] [unpack_argb] test .
+[[255 0 0 1]] [-16777215] [unpack_argb] test .
