@@ -1,4 +1,0 @@
-DEFINE
-    (* parse_png P -> [[I ..] ..] *)
-    parse_png == []
-.

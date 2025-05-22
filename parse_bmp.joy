@@ -14,7 +14,8 @@ DEFINE
     bmp_get_compression_format == bmp_get_dib_header 5 at ;
     bmp_get_color_table_entry_count == bmp_get_dib_header 9 at ;
 
-    bmp_validate == [rollup i has] [] [1 quit] ifte pop2 ;
+    (* bmp_validate : [Bmp..] Getter Values Message -> [Bmp..] *)
+    bmp_validate == [pop rollup i has] [pop] [putchars 1 quit] ifte pop2 ;
 
     (* bmp_read_file_header : FileStream [] -> FileStream [BmpFileHeader] *)
     bmp_read_file_header ==
@@ -33,14 +34,14 @@ DEFINE
         swap 14 0 fseek pop []
         [
             [ read_int ] (* Info Header Size *)
-            [ read_int ] (* Width *)
-            [ read_int ] (* Height *)
+            [ read_sint ] (* Width *)
+            [ read_sint ] (* Height *)
             [ read_short ] (* Planes *)
             [ read_short ] (* Bits per Pixel *)
             [ read_int ] (* Compression *)
             [ read_int ] (* Image Size *)
-            [ read_int ] (* X Pixels per Meter *)
-            [ read_int ] (* Y Pixels per Meter *)
+            [ read_sint ] (* X Pixels per Meter *)
+            [ read_sint ] (* Y Pixels per Meter *)
             [ read_int ] (* Colors Used *)
             [ read_int ] (* Important Colors *)
         ]
@@ -51,7 +52,7 @@ DEFINE
     (* bmp_read_color_table : FileStream [BmpFileHeader BmpDibHeader] -> FileStream [BmpFileHeader BmpDibHeader BmpColorTable] *)
     bmp_read_color_table ==
         dup [bmp_get_dib_size 14 + 0 fseek pop] dip
-        dup bmp_get_color_table_entry_count swapd [] swap [ [read_int 16777216 -] dip cons ] times arrrev
+        dup bmp_get_color_table_entry_count swapd [] swap [ [read_int 4278190080 +] dip cons ] times arrrev
         rolldown arrrev cons arrrev
         ;
 
@@ -68,14 +69,8 @@ DEFINE
         ;
 
     bmp_get_pixel_reader == dup bmp_get_bits_per_pixel [
-        [1 ["1bpp bitmaps are not supported\n" putchars 1 quit]]
-        [2 ["2bpp bitmaps are not supported\n" putchars 1 quit]]
-        [4 ["4bpp bitmaps are not supported\n" putchars 1 quit]]
         [8 [read_byte]]
-        [16 ["16bpp bitmaps are not supported\n" putchars 1 quit]]
-        [24 [dup 3 fread arrrev 255 swons arrrev 3 pack_le]]
-        [32 [read_int]]
-        [64 ["64bpp bitmaps are not supported\n" putchars 1 quit]]
+        [24 pop2 [dup 3 fread arrrev 255 swons arrrev 3 pack_le]]
     ] case ;
 
     bmp_get_image_size == dup dup [[bmp_get_bits_per_pixel] dip bmp_get_width] dip bmp_get_height * * 7 + 8 / ;
@@ -100,7 +95,10 @@ DEFINE
 
     read_bmp == []
         bmp_read_file_header
+        [bmp_get_format_version] [0] "Unsupported bitmap format\n" bmp_validate
         bmp_read_dib_header
+        [bmp_get_compression] [0] "Unsupported bitmap compression type\n" bmp_validate
+        [bmp_get_bits_per_pixel] [8 24] "Unsupported bitmap bits per pixel\n" bmp_validate
         bmp_read_color_table
         bmp_read_pixels
         ;

@@ -54,4 +54,6 @@ LIBRA
     read_short == dup 2 fread pack_le2 ;
     (* read_int : S -> S I *)
     read_int == dup 4 fread pack_le4 ;
+    (* read_sint : S -> S I *)
+    read_sint == read_int [2147483648 <] [] [4294967296 -] ifte ;
 .

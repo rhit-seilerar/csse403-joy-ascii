@@ -1,0 +1,28 @@
+DEFINE
+    gif_get_signature == 0 at 0 at ["GIF87a" "GIF89a"] indexof ;
+
+    (* gif_validate : [Gif..] Getter Values Message -> [Gif..] *)
+    gif_validate == [pop rollup i has] [pop] [putchars 1 quit] ifte pop2 ;
+
+    (* File [] -> File [GifHeader] *)
+    gif_read_header ==
+        [0 0 fseek pop] dip
+        6 read_chars
+        ;
+
+    (* File [GifHeader] -> File [GifHeader GifLogicalScreenDescriptor] *)
+    gif_read_logical_screen_descriptor ==
+        [6 0 fseek pop] dip
+        6 read_chars
+        ;
+
+    read_gif ==
+        gif_read_header
+        [gif_get_signature] [0 1] "Unsupported gif format" gif_validate 
+        ;
+
+    (* parse_gif P -> [[I ..] ..] *)
+    parse_gif ==
+        read_gif
+        ;
+.

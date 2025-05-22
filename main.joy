@@ -15,8 +15,8 @@
 (* Load custom files *)
 "util.joy" include .
 "parse_bmp.joy" include .
-"parse_jpg.joy" include .
-"parse_png.joy" include .
+"parse_gif.joy" include .
+"parse_tiff.joy" include .
 "ascii_output.joy" include .
 
 (* Setup definitions *)
@@ -40,8 +40,8 @@ DEFINE
     parsers == [
         ["Unhandled extension " swap concat "\n" concat putchars quit ]
         ["bmp" pop parse_bmp]
-        ["jpg" pop parse_jpg]
-        ["png" pop parse_png]
+        ["gif" pop parse_gif]
+        ["tiff" pop parse_tiff]
     ] ;
     
     (* get_file_ext: Path -> Ext *)
