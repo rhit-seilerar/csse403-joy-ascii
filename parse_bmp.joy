@@ -1,18 +1,36 @@
 (* https://www.ece.ualberta.ca/~elliott/ee552/studentAppNotes/2003_w/misc/bmp_file_format/bmp_file_format.htm *)
 DEFINE
-    read_bmp_header ==
-        []
+    bmp_get_bmp_header == 0 at ;
+    bmp_get_dib_header == 1 at ;
+    bmp_get_color_table == 2 at ;
+    bmp_get_pixels == 3 at ;
+    
+    bmp_get_format_version == bmp_get_bmp_header 0 at ["BM" "BA" "CI" "CP" "IC" "PT"] swap indexof ;
+    bmp_get_pixels_offset == bmp_get_bmp_header 2 at ;
+    bmp_get_dib_size == bmp_get_dib_header 0 at ;
+    bmp_get_width == bmp_get_dib_header 1 at ;
+    bmp_get_height == bmp_get_dib_header 2 at ;
+    bmp_get_bits_per_pixel == bmp_get_dib_header 4 at ;
+    bmp_get_compression_format == bmp_get_dib_header 5 at ;
+    bmp_get_color_table_entry_count == bmp_get_dib_header 9 at ;
+
+    bmp_validate == [rollup i has] [] [1 quit] ifte pop2 ;
+
+    (* bmp_read_file_header : FileStream [] -> FileStream [BmpFileHeader] *)
+    bmp_read_file_header ==
+        swap 0 0 fseek pop []
         [
             [ 2 read_chars ] (* Signature *)
             [ read_int ] (* File Size *)
-            [ read_int ] (* <unused> *)
-            [ read_int ] (* Data Offset *)
+            [ 4 1 fseek pop read_int ] (* Data Offset *)
         ]
-        [ dupdd dip cons ]
-        step arrrev popd ;
+        [ dip cons ]
+        step arrrev rolldown cons
+        ;
 
-    read_bmp_info_header ==
-        []
+    (* bmp_read_dib_header : FileStream [BmpFileHeader] -> FileStream [BmpFileHeader BmpDibHeader] *)
+    bmp_read_dib_header ==
+        swap 0 14 fseek pop []
         [
             [ read_int ] (* Info Header Size *)
             [ read_int ] (* Width *)
@@ -26,18 +44,54 @@ DEFINE
             [ read_int ] (* Colors Used *)
             [ read_int ] (* Important Colors *)
         ]
-        [ dupdd dip cons ]
-        step arrrev popd ;
+        [ dip cons ]
+        step arrrev rolldown cons arrrev
+        ;
 
-    read_bmp ==
+    (* bmp_read_color_table : FileStream [BmpFileHeader BmpDibHeader] -> FileStream [BmpFileHeader BmpDibHeader BmpColorTable] *)
+    bmp_read_color_table ==
+        dup [bmp_get_dib_size 0 14 + fseek pop] dip
+        dup bmp_get_color_table_entry_count swapd [] swap [ [read_int] dip cons ] times arrrev
+        rolldown arrrev cons arrrev
+        ;
+
+    bmp_seek_pixels == dup swapd bmp_get_pixels_offset 0 swap fseek pop swap ;
+
+    bmp_read_pixels_8bpp ==
+        dup swapd dup [bmp_get_width] dip [] swap bmp_get_height abs
+        [[dup2 fread [dup2 4 rem fread pop] dip] dip cons] times
+        popd rolldown arrrev cons arrrev
+        ;
+
+    bmp_indexes_to_pixels == uncons uncons uncons uncons pop [[dupd at] map] map [] cons cons cons cons ;
+
+    bmp_maybe_flip ==
+        [bmp_get_height 0 <]
+        [uncons uncons uncons uncons pop arrrev [] cons cons cons cons]
         []
-        [
-            [ read_bmp_header ]
-            [ read_bmp_info_header ]
-        ]
-        [ dupdd dip cons ]
-        step arrrev popd pstack ;
+        ifte
+        ;
+
+    read_bmp == []
+        bmp_read_file_header
+        [bmp_get_format_version] [0] bmp_validate
+        
+        bmp_read_dib_header
+        [bmp_get_compression_format] [0] bmp_validate
+        [bmp_get_bits_per_pixel] [8] bmp_validate
+        
+        bmp_read_color_table
+        
+        bmp_seek_pixels
+        bmp_read_pixels_8bpp
+        
+        bmp_maybe_flip
+        ;
 
     (* parse_bmp P -> [[I ..] ..] *)
-    parse_bmp == read_bmp;
+    parse_bmp ==
+        read_bmp
+        bmp_indexes_to_pixels
+        bmp_get_pixels
+        ;
 .

@@ -4,16 +4,13 @@ LIBRA
     pop2 == pop pop ;
     popd2 == [pop pop] dip ;
     dip2 == swap [dip] dip ;
-    pstack == stack put ;
+    pstack == stack put '\n putch ;
 
     (* indexof: Agg Elem -> Index *)
-    indexof == -1 rotate -1 rollup
-        [null not]
-        [
-            [1 +] dip2 uncons [dupd =] dip swap
-            [[swapd] dip pop ""] [] branch
-        ]
-        while pop pop pop ;
+    indexof == swap dup size rollup
+        [[null] [true] [first equal] ifte] [pop2 0]
+        [rest] [succ] linrec
+        dup swapd = -1 rolldown choice ;
 
     arrrev == [] [swons] swapd step ;
     strrev == "" [swons] swapd step ;
@@ -45,11 +42,16 @@ LIBRA
     unpack_one == 256 div swap swonsd ;
     unpack_rgba == [] swap 4 [unpack_one] times pop ;
     
-    (* Pack four bytes into a little-endian int *)
-    pack_le2 == arrrev 0 2 [pack_one] times popd ;
-    pack_le4 == arrrev 0 4 [pack_one] times popd ;
+    pack_le == [arrrev 0] dip [pack_one] times popd ;
+    pack_le2 == 2 pack_le ;
+    pack_le4 == 4 pack_le ;
 
+    (* read_chars : S I -> S "abc.." *)
     read_chars == dupd fread "" swap [chr swons] step strrev ;
-    read_short == 2 fread pack_le2 ;
-    read_int == 4 fread pack_le4 ;
+    (* read_byte : S -> S I *)
+    read_byte == dup 1 fread first ;
+    (* read_short : S -> S I *)
+    read_short == dup 2 fread pack_le2 ;
+    (* read_int : S -> S I *)
+    read_int == dup 4 fread pack_le4 ;
 .

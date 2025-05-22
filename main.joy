@@ -27,13 +27,15 @@ DEFINE
     get_args == argc 3 =
         [argv unstack pop]
         ["Usage: 'joy main.joy IMAGE OUTPUT'\n" putchars quit]
-        branch ;
+        branch
+        ;
 
     (* open_file: Path Mode -> File *)
     open_file == dupd fopen dup null
         ["Could not open file " rolldown concat "\n" concat putchars quit]
         [popd]
-        branch ;
+        branch
+        ;
 
     parsers == [
         ["Unhandled extension " swap concat "\n" concat putchars quit ]
@@ -48,14 +50,20 @@ DEFINE
     (* parse_image: Path -> [[Pixel ..] ..] *)
     parse_image ==
         "Loading image...\n" putchars
-        dup "r" open_file swap get_file_ext parsers strcase swap fclose ;
+        dup "r" open_file swap get_file_ext parsers strcase swap fclose
+        "Parsed pixels: " putchars dup put '\n putch
+        ;
 
     make_ascii ==
         "Constructing output...\n" putchars
-        pop "Test Output" ;
+        pop "Test Output"
+        ;
     
     (* write_ascii: Path Text -> *)
-    write_ascii == ["w" open_file] dip fputchars fclose ;
+    write_ascii ==
+        "Writing output...\n" putchars
+        ["w" open_file] dip fputchars fclose
+        ;
 
     main == get_args parse_image make_ascii write_ascii ;
 .
