@@ -51,14 +51,9 @@ DEFINE
     parse_image ==
         "Loading image...\n" putchars
         dup "r" open_file swap get_file_ext parsers strcase swap fclose
-        "Parsed pixels: " putchars dup put '\n putch
         ;
 
-    make_ascii ==
-        "Constructing output...\n" putchars
-        get_output
-        stack put
-        ;
+    make_ascii == "Constructing output...\n" putchars get_output ;
     
     (* write_ascii: Path Text -> *)
     write_ascii ==

@@ -15,7 +15,7 @@
 # endif
 #define INIECHOFLAG	0
 #define INIAUTOPUT	1
-#define INITRACEGC	1
+#define INITRACEGC	0
 				/* installation dependent	*/
 #define SETSIZE		32
 #define MAXINT		2147483647

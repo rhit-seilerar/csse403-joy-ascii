@@ -64,7 +64,7 @@ DEFINE
     bmp_read_pixel_row ==
         [dup swapd] dip [] rolldown                                     (* [Bmp].. Width File Reader [] Width *)
         [[dup [i] dip] dip swapd cons] times                            (* [Bmp].. Width File Reader [Row..] *)
-        [swapd] dip bmp_pad_pixel_row                                   (* [Bmp].. File Width Reader [Row..] *)
+        [swapd] dip bmp_pad_pixel_row arrrev                            (* [Bmp].. File Width Reader [Row..] *)
         ;
 
     bmp_get_pixel_reader == dup bmp_get_bits_per_pixel [
