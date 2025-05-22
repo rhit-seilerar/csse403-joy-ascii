@@ -70,7 +70,7 @@ DEFINE
 
     bmp_get_pixel_reader == dup bmp_get_bits_per_pixel [
         [8 [read_byte]]
-        [24 pop2 [dup 3 fread arrrev 255 swons arrrev 3 pack_le]]
+        [24 pop2 [dup 3 fread arrrev pack_rgb]]
     ] case ;
 
     bmp_get_image_size == dup dup [[bmp_get_bits_per_pixel] dip bmp_get_width] dip bmp_get_height * * 7 + 8 / ;

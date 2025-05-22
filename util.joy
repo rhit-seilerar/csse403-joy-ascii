@@ -36,6 +36,7 @@ LIBRA
     (* Pops [R G B A] (ints from 0-255) off the stack, outputs a packed int *)
     pack_one == unswonsd 256 * + ;
     pack_argb == 0 4 [pack_one] times popd ;
+    pack_rgb == [[0 =] all] [0] [255] ifte swons pack_argb ;
 
     (* unpack_rgba I -> [A R G B] *)
     (* Pops a packed int from the stack, outputs [A R G B] *)
@@ -56,4 +57,18 @@ LIBRA
     read_int == dup 4 fread pack_le4 ;
     (* read_sint : S -> S I *)
     read_sint == read_int [2147483648 <] [] [4294967296 -] ifte ;
+
+    fset == 0 fseek pop ;
+    
+    (* replace : [A0 A1 .. AI .. AN-1] X I -> [A0 A1 .. X .. AN-1] *)
+    replace == dup [[unconsd] times unswonsd popd swons ] dip [cons] times ;
+    
+    (* append : [A0 A1 .. AN-1] X -> [A0 A1 .. AN-1 X] *)
+    append == [[] swap [swons] step] dip swons [] swap [swons] step ;
+    
+    (* Struct X SI MI *)
+    member_replace == [swap [dup2 at] dip] dip replace swap replace ;
+    
+    (* Struct X SI *)
+    member_append == swap [dup2 at] dip append swap replace ;
 .

@@ -1,28 +1,150 @@
 DEFINE
-    gif_get_signature == 0 at 0 at ["GIF87a" "GIF89a"] indexof ;
+    gif_get_header == 0 at ;
+    gif_get_lsd == 1 at ;
+    gif_get_gct == 2 at ;
+    gif_get_signature == gif_get_header 0 at ["GIF87a" "GIF89a"] swap indexof ;
+    gif_get_lsd_flags == gif_get_lsd 2 at ;
+    gif_gct_exists == gif_get_lsd_flags 0 at ;
+    gif_get_gct_size == [gif_gct_exists] [gif_get_lsd_flags 3 at] [pop 0] ifte ;
+    
+    gif_get_id == 0 at ;
+    gif_get_lct == 1 at ;
+    gif_get_lzw == 2 at ;
+    gif_get_lzw_min == gif_get_lzw 0 at ;
+    gif_get_lzw_size == gif_get_lzw 1 at ;
+    gif_get_code_table == 3 at ;
+    gif_get_indexes == 4 at ;
+    gif_get_id_flags == gif_get_id 4 at ;
+    gif_lct_exists == gif_get_id_flags 0 at ;
+    gif_get_lct_size == [gif_lct_exists] [gif_get_id_flags 4 at] [pop 0] ifte ;
 
     (* gif_validate : [Gif..] Getter Values Message -> [Gif..] *)
     gif_validate == [pop rollup i has] [pop] [putchars 1 quit] ifte pop2 ;
 
     (* File [] -> File [GifHeader] *)
     gif_read_header ==
-        [0 0 fseek pop] dip
-        6 read_chars
-        ;
+        swap
+        [
+            [6 read_chars] (* Signature & Version *)
+        ] [i] map
+        rolldown arrrev cons arrrev ;
 
     (* File [GifHeader] -> File [GifHeader GifLogicalScreenDescriptor] *)
     gif_read_logical_screen_descriptor ==
-        [6 0 fseek pop] dip
-        6 read_chars
+        swap
+        [
+            [read_short] (* Canvas Width *)
+            [read_short] (* Canvas Height *)
+            [read_byte []
+                [8 div 1 + 2 swap pow trunc] dip cons  (* Global Color Table Size *)
+                [2 div 1 =] dip cons                   (* Sort Flag *)
+                [8 div 1 + 2 swap pow trunc] dip cons  (* Color Resolution *)
+                [2 div 1 =] dip cons                   (* Global Color Table Flag *)
+                popd
+            ]
+            [read_byte] (* Background Color Index *)
+            [read_byte] (* Pixel Aspect Ratio *)
+        ] [i] map
+        rolldown arrrev cons arrrev ;
+
+    (* File [GifHeader GifLSD] -> File [GifHeader GifLSD GifGCT] *)
+    gif_read_global_color_table ==
+        dup gif_get_gct_size swapd [] swap
+        [[dup 3 fread pack_rgb] dip cons] times arrrev
+        rolldown arrrev cons arrrev ;
+
+    (* File Handler -> File *)
+    gif_read_sub_blocks == swap read_byte [0 !=] [rolldown dup [i] dip swap read_byte] while swapd pop2 ;
+    
+    (* Gif Image File Size -> Gif Image File *)
+    gif_skip_sub_block == dupd fread pop ;
+
+    gif_read_extension == read_byte pop [gif_skip_sub_block] gif_read_sub_blocks ;
+    
+    gif_read_image_descriptor ==
+        swap [
+            [read_short] (* Image Left Position *)
+            [read_short] (* Image Top Position *)
+            [read_short] (* Image Width *)
+            [read_short] (* Image Height *)
+            [read_byte []
+                [8 div 1 + 2 swap pow trunc] dip cons  (* Local Color Table Size *)
+                [4 div] dip cons                       (* Reserved *)
+                [2 div 1 =] dip cons                   (* Sort Flag *)
+                [2 div 1 =] dip cons                   (* Interlace Flag *)
+                [2 div 1 =] dip cons                   (* Local Color Table Flag *)
+                popd
+            ]
+        ] [i] map
+        rolldown arrrev cons arrrev ;
+
+    (* [Gif..] File [Image..] *)
+    gif_read_local_color_table ==
+        dup gif_get_lct_size swapd [] swap
+        [[dup 3 fread pack_rgb] dip cons] times arrrev
+        rolldown arrrev cons arrrev ;
+
+    (* [Gif..] [Image..] -> [Gif..] [Image..] [Table..] *)
+    gif_get_color_table ==
+        [gif_lct_exists]
+        [dup gif_get_lct]
+        [[
+            [gif_gct_exists]
+            [dup gif_get_gct]
+            [dup gif_get_gct_size [] swap [0 swons] times]
+            ifte
+        ] dip swap] ifte ;
+
+    (* [Gif..] [Image..] -> [Gif..] [Image..] [CodeTable..] *)
+    gif_make_code_table ==
+        gif_get_color_table arrrev
+        [dup gif_get_lzw_min] dip dup [size -] dip swap ["N" swons] times "CC" swons "EOI" swons arrrev
         ;
 
-    read_gif ==
+    (* [Gif..] [Image..] -> [Gif.. [Images.. Image]] *)
+    gif_add_image == [uncons uncons uncons uncons arrrev] dip swons arrrev cons cons cons cons ;
+
+    (* Image Stream -> Image Stream Code *)
+    gif_next_code == [gif_get_lzw_size] dip ;
+
+    (* Image Stream -> Image *)
+    gif_lzw_decode == [gif_get_indexes null] [4 member_append] [] ifte;
+
+    (* Gif Image -> Gif Image *)
+    gif_handle_clear_code ==
+        gif_make_code_table 3 replace
+        dup gif_get_lzw_min dup [] cons cons 2 replace ;
+
+    gif_read_image == []
+        gif_read_image_descriptor                                     (* 0: Image Descriptor  *)
+        gif_read_local_color_table                                    (* 1: Local Color Table *)
+        swap read_byte 2 swap pow trunc dup [] cons cons swapd append (* 2: LZW Min Size      *)
+        [] append swapd gif_handle_clear_code                         (* 3: Code Table        *)
+        [] append                                                     (* 4: Pixels *)
+        rolldown [gif_skip_sub_block] gif_read_sub_blocks
+        ;
+
+    read_gif == []
         gif_read_header
         [gif_get_signature] [0 1] "Unsupported gif format" gif_validate 
+        gif_read_logical_screen_descriptor
+        gif_read_global_color_table
+        arrrev [] swons arrrev
+        
+        swap read_byte [59 !=] [[
+            [[33 =] pop gif_read_extension ]
+            [[44 =] pop gif_read_image [3 member_append] dip]
+            ["Unsupported GIF block\n" putchars 1 exit]
+        ] cond read_byte] while pop
+        
+        swap
         ;
+
+    gif_images_to_pixels == pop [[0 0] [0 0]] ;
 
     (* parse_gif P -> [[I ..] ..] *)
     parse_gif ==
         read_gif
+        gif_images_to_pixels
         ;
 .
