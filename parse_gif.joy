@@ -102,10 +102,6 @@ DEFINE
         
         (* Add CC and EOI        *)
         'c swons 'e swons
-        
-        (* Add exension indices *)
-        [dup gif_get_lzw_min 2 -] dip swap [[] swons] times
-        
         arrrev
         ;
 
@@ -117,12 +113,15 @@ DEFINE
         [unswonsd] dip swapd   (* Extract avail : Stream Thresh Avail Acc *)
         [pop <]
         [                              (* Partial remove from stream : Stream Thresh Avail Acc   *)
-            [dupd swap /] dip          (* Reduce avail               : Stream Thresh Avail Acc   *)
-            swap [dupd *] dip          (* Shift accumulator          : Stream Thresh Acc Avail   *)
-            [[unswonsd div] dip] dip   (* Split byte                 : Stream Quot Rem Acc Avail *)
-            [+] dip                    (* Accumulate partial         : Stream Quot Acc Avail     *)
-            swap [swonsd swons] dip    (* Update stream              : Stream Acc                *)
-            1 swap                     (* Restore thresh             : Stream Thresh Acc         *)
+            [dupd swap /] dip                     (* Reduce avail       : Stream Thresh Avail Acc          *)
+            [[unswonsd dup [div] dip] dip] dip    (* Split byte         : Stream Quot Rem Thresh Avail Acc *)
+            rolldown                              (* Reorder            : Stream Quot Rem Avail Acc Thresh *)
+            [swapd [[swonsd swons] dip] dip] dip  (* Update stream      : Stream Rem Acc Thresh            *)
+            rollup                                (* Reorder            : Stream Thresh Rem Acc            *)
+            [[[[dup gif_get_lzw_size] dip swap] dip] dip] dip  (* Get lzw size : Stream LZW Thresh Rem Acc *)
+            [[/] dip *] dip                       (* Shift partial      : Stream Rem Acc                   *)
+            +                                     (* Accumulate partial : Stream Acc                       *)
+            1 swap                                (* Restore thresh     : Stream Thresh Acc                *)
         ]
         [                             (* Full remove from stream : Stream Thresh Avail Acc *)
             dupd *                    (* Shift accumulator       : Stream Thresh Avail Acc *)
@@ -135,20 +134,17 @@ DEFINE
     (* Stream Thresh -> Stream Acc *)
     stream_read == 0 [pop 1 !=] [stream_partial_read] while popd ;
 
-    (* Image Code -> Image Code *)
+    (* Image -> Image *)
     gif_maybe_double_codes ==
-        swap [gif_get_lzw_size 1 - =]   (* If code == lzw size : Stream Code Image     *)
-        [
-            2 1 [2 *] member_apply      (* Then increment lzw  : Stream Code Image     *)
-            3 [arrev dup size [[] swons] times arrev] myapply     (* And double the code table *)
-        ]
-        [] ifte swap ;
+        [dup [gif_get_code_table size] dip gif_get_lzw_size =]
+        [ 2 1 [2 *] member_apply ]
+        [] ifte ;
 
     (* Image Stream -> Image Stream Code *)
     gif_next_code ==
         [dup gif_get_lzw_size] dip swap      (* Get thresh          : Image Stream Thresh   *)
         stream_read                          (* Read the next code  : Image Stream Code     *)
-        swapd gif_maybe_double_codes swapd ; (* Restore stack order : Image Stream Code     *)
+        ; (* Restore stack order : Image Stream Code     *)
 
     (* Gif Image -> Gif Image *)
     gif_handle_clear_code ==
@@ -156,10 +152,10 @@ DEFINE
         dup gif_get_lzw_min dup 2 * [] cons cons 2 replace ;
 
     (* Gif Image Code -> Gif Image [Indexes..] *)
-    gif_code_to_indexes == [pop gif_get_code_table] nullary swap at ;
+    gif_code_to_indexes == [dup gif_get_code_table] dip swap [size <] [of] [pop2 []] ifte ;
 
     (* Gif Image [Indexes..] -> Gif Image *)
-    gif_output_indexes == [pop 4 at] nullary [swons] step 4 replace ;
+    gif_output_indexes == swap 4 [swap concat] myapply ;
 
     (* Gif Image Stream Code -> Gif Image Stream *)
     gif_output_code == swap [gif_code_to_indexes gif_output_indexes] dip ;
@@ -174,8 +170,9 @@ DEFINE
             [3]
         ] cond ;
 
-    print2 == [dup put] dip dup put '\n putch ;
-    print3 == [[dup put] dip dup put] dip dup put '\n putch ;
+    print3 == [[dup put] dip dup put ] dip dup put '\n putch ;
+
+    gif_add_code == 3 member_append gif_maybe_double_codes ;
 
     (* Gif Image Stream -> Gif Image *)
     gif_lzw_decode ==
@@ -187,10 +184,19 @@ DEFINE
                 [pop2]
                 [pop gif_output_code]
                 [
-                    [dup [gif_output_code] dip] dip
-                    pop2
+                    dupd swap [[gif_output_code] dip] dip
+                    [swap [gif_code_to_indexes] dip swap] dip swap
+                    [swap [gif_code_to_indexes first] dip swap] dip
+                    swap append
+                    swap [gif_add_code] dip
                 ]
-                [pop2]
+                [
+                    popd swap [
+                        gif_code_to_indexes dup first append
+                        gif_add_code
+                        dup 3 at size 1 -
+                    ] dip swap gif_output_code
+                ]
             ] of swapd i] dip] dip
         ] while pop2 pop ;
 
@@ -200,9 +206,14 @@ DEFINE
         swap read_byte 2 swap pow trunc 0 [] cons cons swapd append   (* 2: LZW Min Size      *)
         [] append                                                     (* 3: Code Table        *)
         [] append                                                     (* 4: Pixels *)
+        0 append
         [] rolldown [dupd fread swap [concat] dip] gif_read_sub_blocks
         [256 swons gif_lzw_decode] dip
-        [4 [arrrev] [[at] nullary] dip unary swap replace] dip
+        rollup gif_get_color_table swap 4 [[at] map] myapply popd rolldown
+        swap dup [4 at] dip 0 at dup [2 at] dip 3 at
+        [] swap [rollup] dip
+        [dup [[] swap [unswonsd cons] times arrrev swap swonsd] dip] times pop2 arrrev
+        swap
         ;
 
     read_gif == []
@@ -221,7 +232,7 @@ DEFINE
         swap
         ;
 
-    gif_images_to_pixels == pop [[0 0] [0 0]] ;
+    gif_images_to_pixels == 3 at [] [concat] fold ;
 
     (* parse_gif P -> [[I ..] ..] *)
     parse_gif ==

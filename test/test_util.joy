@@ -32,3 +32,4 @@
 [[z y [1 a 3 4] x]] [1 2 a [z y [1 2 3 4] x]] [member_replace] test .
 [[1 2 3 4 a]] [a [1 2 3 4]] [append] test .
 [[z y [1 2 3 4 a] x]] [2 a [z y [1 2 3 4] x]] [member_append] test .
+[[z y [1 6 3 4] x]] [[3 *] 1 2 [z y [1 2 3 4] x]] [member_apply] test .
