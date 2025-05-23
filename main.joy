@@ -16,6 +16,7 @@
 "util.joy" include .
 "parse_bmp.joy" include .
 "parse_gif.joy" include .
+"parse_ppm.joy" include .
 "parse_tiff.joy" include .
 "ascii_output.joy" include .
 
@@ -41,6 +42,7 @@ DEFINE
         ["Unhandled extension " swap concat "\n" concat putchars quit ]
         ["bmp" pop parse_bmp]
         ["gif" pop parse_gif]
+        ["ppm" pop parse_ppm]
         ["tiff" pop parse_tiff]
     ] ;
     

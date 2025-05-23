@@ -1,0 +1,73 @@
+(* https://www.ece.ualberta.ca/~elliott/ee552/studentAppNotes/2003_w/misc/ppm_file_format/ppm_file_format.htm *)
+DEFINE
+    ppm_get_header == 0 at ;
+    ppm_get_pixels == 1 at ;
+    
+    ppm_get_format_version == ppm_get_header 0 at ["P6"] swap indexof ;
+    ppm_get_width == ppm_get_header 1 at ;
+    ppm_get_height == ppm_get_header 2 at ;
+    ppm_get_bits_per_pixel == ppm_get_header 3 at ;
+
+    (* ppm_validate : [ppm..] Getter Values Message -> [ppm..] *)
+    ppm_validate == [pop rollup i has] [pop] [putchars 1 quit] ifte pop2 ;
+
+    (* ppm_read_file_header : FileStream [] -> FileStream [ppmFileHeader] *)
+    ppm_read_file_header ==
+        swap 0 0 fseek pop []
+        [
+            [ 2 read_chars ] (* Signature: P6 *)
+            [ 1 read_chars pop 4 read_chars 10 strtol ] (* File Width *)
+            [ 1 read_chars pop 3 read_chars 10 strtol ] (* File Height *)
+            [ 1 read_chars pop 3 read_chars 10 strtol [256 <] [8] [16] ifte popd ] (* Bits Per Pixel *)
+        ]
+        [ dip cons ]
+        step arrrev rolldown cons
+        ;
+
+    ppm_seek_pixels == swap 15 0 fseek pop swap;
+
+    (* [ppm..] File Width Reader [Row..] -> [ppm..] File Width Reader [Row..] *)
+    ppm_pad_pixel_row == [[dup 3 rem swapd 1 fseek pop swap] dip] dip ;
+
+    (* [ppm..] File Width Reader -> [ppm..] File Width Reader [Row..] *)
+    ppm_read_pixel_row ==
+        [dup swapd] dip [] rolldown                                     (* [ppm].. Width File Reader [] Width *)
+        [[dup [i] dip] dip swapd cons] times                            (* [ppm].. Width File Reader [Row..] *)
+        [swapd] dip ppm_pad_pixel_row arrrev                            (* [ppm].. File Width Reader [Row..] *)
+        ;
+
+    ppm_get_pixel_reader == dup ppm_get_bits_per_pixel [[8 [dup 3 fread arrrev pack_rgb]] [16 [read_byte swap read_byte cons arrrev]]] case;
+
+    ppm_get_image_size == dup dup [[ppm_get_bits_per_pixel] dip ppm_get_width] dip ppm_get_height * * 7 + 8 / ;
+
+    ppm_read_pixels ==                                                  (* File [ppm..] *)
+        ppm_seek_pixels                                                 (* File [ppm..] *)
+        ppm_get_pixel_reader   stack put                                         (* File [ppm..] Reader *)
+        [dup swapd dup [ppm_get_width] dip ppm_get_height] dip          (* [ppm..] File Width Height Reader *)
+        [] rolldown [[ppm_read_pixel_row] dip cons] times               (* [ppm..] File Width Reader [Rows..] *)
+        popd popd rolldown arrrev cons arrrev                           (* File [Rows..] [ppm..] *)
+        ppm_maybe_flip                                                  (* File [Rows..] [ppm..] *)
+        ;
+
+    ppm_indexes_to_pixels == uncons uncons uncons uncons pop [[dupd at] map] map [] cons cons cons cons ;
+
+    ppm_maybe_flip ==
+        [ppm_get_height 0 <]
+        [uncons uncons uncons uncons pop arrrev [] cons cons cons cons]
+        []
+        ifte
+        ;
+
+    read_ppm == []
+        ppm_read_file_header 
+        [ppm_get_format_version] [0] "Unsupported bitmap format\n" ppm_validate
+        [ppm_get_bits_per_pixel] [8 16] "Unsupported bitmap bits per pixel\n" ppm_validate
+        ppm_read_pixels 
+        ;
+
+    (* parse_ppm P -> [[I ..] ..] *)
+    parse_ppm ==
+        read_ppm 
+        ppm_get_pixels  stack put arrrev
+        ;
+.
