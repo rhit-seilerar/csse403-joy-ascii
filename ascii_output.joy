@@ -40,9 +40,12 @@ total_val_group == [[sum_pixel] map sum] map sum;
 
 process_group == total_val_group
         [
-            [[rollup * 50 * <] " "]
-            [[rollup * 400 * <] "."]
-            [[rollup * 750 * <] "x"]
+            [[rollup * 30 * <] " "]
+            [[rollup * 150 * <] "."]
+            [[rollup * 270 * <] ":"]
+            [[rollup * 390 * <] "o"]
+            [[rollup * 510 * <] "x"]
+            [[rollup * 650 * <] "M"]
             ["#"]
         ]
         cond;
