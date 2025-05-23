@@ -5,7 +5,7 @@
 1 setundeferror .
 
 (* Print the full stack after execution *)
-2 setautoput .
+0 setautoput .
 
 (* Load libraries *)
 "joy/inilib.joy" include .
