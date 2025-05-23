@@ -61,7 +61,7 @@ DEFINE
         ["w" open_file] dip fputchars fclose
         ;
 
-    main == get_args parse_image 2 4 make_ascii write_ascii ;
+    main == get_args parse_image 1 2 make_ascii write_ascii ;
 .
 
 (* Run the program *)
