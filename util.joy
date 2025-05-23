@@ -66,6 +66,9 @@ LIBRA
     (* append : [A0 A1 .. AN-1] X -> [A0 A1 .. AN-1 X] *)
     append == [[] swap [swons] step] dip swons [] swap [swons] step ;
     
+    (* [A0 A1 .. AI .. AN-1] I [P] -> [A0 A1 .. (AI [P] i) .. AN-1] *)
+    myapply == [at nullary] dip unary replace ;
+    
     (* Struct SI MI *)
     member_get == [dupd at] dip at ;
     
